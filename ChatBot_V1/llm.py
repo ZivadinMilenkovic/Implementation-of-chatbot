@@ -10,8 +10,9 @@ from langchain_community.chat_message_histories import FileChatMessageHistory
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_community.agent_toolkits import create_sql_agent
+from langchain_community.agent_toolkits import create_spark_sql_agent,SparkSQLToolkit
 from langchain_core.runnables.history import RunnableWithMessageHistory
+from langchain_experimental.agents.agent_toolkits.spark.base import create_spark_dataframe_agent
 
 from ChatBot_V1.db.db import get_db
 
@@ -50,8 +51,9 @@ def setup_the_llm():
     max_retries=2,
     handle_parsing_errors=True
 )
-
-    agent = create_sql_agent(llm=llm,db=get_db(),agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
+    
+    toolkit = SparkSQLToolkit(db=get_db(), llm=llm)    
+    agent = create_spark_sql_agent(llm=llm,toolkit=toolkit,agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION)
 
     agent_with_chat_history = RunnableWithMessageHistory(
     agent,
