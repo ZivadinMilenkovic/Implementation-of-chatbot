@@ -18,8 +18,8 @@ def get_auth_token():
     url = "https://bovinet.auth0.com/oauth/ro"
     payload = {
         "client_id": "jJDqhts1jJ0q9rtxFNcNPFXBqXReHyva",
-        "username": "bigdata@mmmooogle.com",  # Tajna
-        "password": "PSmYbrdv5jSWBPG5wrb",  # Tajna
+        "username": "Tajna",  # Tajna
+        "password": "Tajna",  # Tajna
         "id_token": "",
         "connection": "Username-Password-Authentication",
         "grant_type": "password",
