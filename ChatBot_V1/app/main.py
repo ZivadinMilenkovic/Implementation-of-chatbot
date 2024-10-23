@@ -1,7 +1,6 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Header
 import requests
 from pydantic import BaseModel
-import os
 
 app = FastAPI()
 
@@ -13,28 +12,10 @@ class UserHerdAccessResponse(BaseModel):
     herds: list[HerdAccess]
 
 
-def get_auth_token():
-    url = "https://bovinet.auth0.com/oauth/ro"
-    payload = {
-        "client_id": "jJDqhts1jJ0q9rtxFNcNPFXBqXReHyva",
-        "username": "Tajna", 
-        "password": "Tajna",  
-        "id_token": "",
-        "connection": "Username-Password-Authentication",
-        "grant_type": "password",
-        "scope": "openid app_metadata profile perms",
-        "device": ""
-    }
-    
-    response = requests.post(url, json=payload)
-    if response.status_code != 200:
-        raise HTTPException(status_code=400, detail="Error obtaining auth token.")
-    
-    return response.json().get("id_token")
-
 @app.get("/herd-access", response_model=UserHerdAccessResponse)
-def get_user_herd_access():
-    token = get_auth_token()
+def get_user_herd_access(authorization: str = Header(...)):
+    # Očekuje da Authorization header sadrži Bearer token
+    token = authorization.split(" ")[1]  # Ovo uzima token posle "Bearer "
 
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token.")
@@ -48,7 +29,6 @@ def get_user_herd_access():
         raise HTTPException(status_code=response.status_code, detail="Error fetching herd access data.")
 
     herd_data = response.json()
-
 
     unique_herds = {}
     
@@ -68,7 +48,6 @@ def get_user_herd_access():
     herds = list(unique_herds.values())
 
     return UserHerdAccessResponse(herds=herds)
-
 
 # from ..llm import setup_the_llm
 # from ..model import DataModel, InputModel
