@@ -1,21 +1,14 @@
 from fastapi import FastAPI, HTTPException, Header
 import requests
 from pydantic import BaseModel
-
+from ChatBot_V1.model import HerdAccess, UserHerdAccessResponse
 app = FastAPI()
-
-class HerdAccess(BaseModel):
-    HerdId: int
-    HerdName: str
-
-class UserHerdAccessResponse(BaseModel):
-    herds: list[HerdAccess]
 
 
 @app.get("/herd-access", response_model=UserHerdAccessResponse)
 def get_user_herd_access(authorization: str = Header(...)):
-    # Očekuje da Authorization header sadrži Bearer token
-    token = authorization.split(" ")[1]  # Ovo uzima token posle "Bearer "
+    # Token dobijamo iz headera
+    token = authorization.split(" ")[1]
 
     if not token:
         raise HTTPException(status_code=401, detail="Invalid token.")
@@ -30,24 +23,18 @@ def get_user_herd_access(authorization: str = Header(...)):
 
     herd_data = response.json()
 
-    unique_herds = {}
-    
+    # Koristimo set da eliminiramo duplikate
+    herd_ids = set()
+
     if isinstance(herd_data, list):
-        for herd in herd_data:
-            herd_id = herd.get("HerdId")
-            herd_name = herd.get("HerdName", "Unknown") 
-            if herd_id is not None: 
-                unique_herds[herd_id] = HerdAccess(HerdId=herd_id, HerdName=herd_name)
+        herd_ids.update(herd.get("HerdId") for herd in herd_data if herd.get("HerdId") is not None)
     else:
         for herd in herd_data.get("AccessControls", []):
             herd_id = herd.get("HerdId")
-            herd_name = herd.get("HerdName", "Unknown") 
             if herd_id is not None:
-                unique_herds[herd_id] = HerdAccess(HerdId=herd_id, HerdName=herd_name)
+                herd_ids.add(herd_id)
 
-    herds = list(unique_herds.values())
-
-    return UserHerdAccessResponse(herds=herds)
+    return UserHerdAccessResponse(HerdIds=list(herd_ids))
 
 # from ..llm import setup_the_llm
 # from ..model import DataModel, InputModel
