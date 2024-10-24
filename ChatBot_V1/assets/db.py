@@ -5,6 +5,6 @@ import os
 
 def get_db():
     return {
-    "milkproduction": "milkproduction",
-    "streamerherdoverview": "streamerherdoverview",
-}
+        "milkproduction": "milkproduction",
+        "streamerherdoverview": "streamerherdoverview",
+    }
