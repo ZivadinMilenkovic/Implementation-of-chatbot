@@ -21,6 +21,14 @@ class DataModel(BaseModel):
             }
         )
 
+      
 class InputModel(BaseModel):
     input: str
     
+    
+class HerdAccess(BaseModel):
+    HerdId: int
+
+    
+class UserHerdAccessResponse(BaseModel):
+    HerdIds: List[int]
