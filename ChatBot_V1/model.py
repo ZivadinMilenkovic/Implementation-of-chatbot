@@ -21,15 +21,14 @@ class DataModel(BaseModel):
             }
         )
 
+      
 class InputModel(BaseModel):
     input: str
-    session_id: str
-
-
+    
     
 class HerdAccess(BaseModel):
     HerdId: int
-    # HerdName: str
 
+    
 class UserHerdAccessResponse(BaseModel):
     HerdIds: List[int]
