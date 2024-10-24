@@ -23,5 +23,4 @@ class DataModel(BaseModel):
 
 class InputModel(BaseModel):
     input: str
-    session_id: str
     
