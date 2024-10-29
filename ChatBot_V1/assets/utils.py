@@ -15,7 +15,9 @@ class MultiDataFrameAgentLLM:
 
         selected_df_key = self.select_dataframe_using_llm(query).strip()
         selected_df = self.dataframes.get(selected_df_key)
+        
         connection = self.engine.raw_connection()
+        
         selected_df_pd = pd.read_sql_query(
             f"SELECT * FROM {selected_df} WHERE HerdId IN ({','.join(map(str, self.herd_ids))})",
             con=connection,
