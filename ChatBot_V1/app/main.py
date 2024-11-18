@@ -64,7 +64,7 @@ def get_user_herd_access(authorization: str = Header(...)):
 
 @app.post("/testtest", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
-    multi_df_agent_llm = MultiDataFrameAgentLLM(get_db(), engine, 733)
+    multi_df_agent_llm = MultiDataFrameAgentLLM(get_db(), engine, input.herds)
 
     response = multi_df_agent_llm.run(input)
 

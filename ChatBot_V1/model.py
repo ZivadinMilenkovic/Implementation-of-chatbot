@@ -16,7 +16,7 @@ class DataModel(BaseModel):
 
 class InputModel(BaseModel):
     input: str
-
+    herds: list
 
 class HerdAccess(BaseModel):
     HerdId: int
