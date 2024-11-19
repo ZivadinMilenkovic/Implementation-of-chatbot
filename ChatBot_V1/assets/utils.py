@@ -15,9 +15,9 @@ class MultiDataFrameAgentLLM:
 
         selected_df_key = self.select_dataframe_using_llm(query).strip()
         selected_df = self.dataframes.get(selected_df_key)
-        
+
         connection = self.engine.raw_connection()
-        
+
         selected_df_pd = pd.read_sql_query(
             f"SELECT * FROM {selected_df} WHERE HerdId IN ({','.join(map(str, self.herd_ids))})",
             con=connection,
@@ -25,9 +25,9 @@ class MultiDataFrameAgentLLM:
 
         if selected_df_key:
             agent = setup_the_agent(self.llm, selected_df_pd)
-            
+
             result = agent.invoke(query)
-            
+
             summary_prompt = f"""
             The user asked: '{query}'.
             The agent's answer was: '{result}'.
@@ -35,7 +35,7 @@ class MultiDataFrameAgentLLM:
             so the user gets a complete and understandable response.
             """
             summary_response = self.llm.invoke(summary_prompt)
-            
+
             return summary_response.content if summary_response else result
         else:
             return f"No matching DataFrame found for the query: {query}"
