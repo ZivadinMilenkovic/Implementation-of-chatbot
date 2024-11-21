@@ -19,9 +19,9 @@ app = FastAPI()
 
 
 engine = create_engine(
-    f"databricks+connector://token:{os.getenv('API_TOKEN_DATABRICKS')}@{os.getenv('HOST')}:443/default",
+    f"databricks+connector://token:{os.getenv('API_TOKEN_DATABRICKS1')}@{os.getenv('HOST1')}:443/default",
     connect_args={
-        "http_path": f"/sql/1.0/warehouses/{os.getenv('WORKHOUSE')}",
+        "http_path": f"/sql/1.0/warehouses/{os.getenv('WORKHOUSE1')}",
     },
 )
 
@@ -93,13 +93,11 @@ def test(input: InputModel):
 
     response = multi_df_agent_llm.run(input)
 
-    if response.status_code == 422:
-        return response
 
-    if response.status_code == 500:
+    if type(response) != str:
         return Response(
             status_code=status.HTTP_400_BAD_REQUEST,
-            content="User location is not supported for the API use.",
+            content="Failed to get response from the API.",
         )
 
     return response

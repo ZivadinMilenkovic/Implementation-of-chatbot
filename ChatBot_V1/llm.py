@@ -4,16 +4,15 @@ from langchain.agents import AgentType
 from langchain_google_genai import ChatGoogleGenerativeAI
 
 from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
-
-
+from langchain_databricks import ChatDatabricks
+from langchain.agents import AgentExecutor
 def setup_the_llm():
 
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-1.5-flash-8b",
-        api_key=os.getenv("API_TOKEN_GEMINI"),
+    llm = ChatDatabricks(
+        target_uri="databricks",
+        endpoint="/serving-endpoints/databricks-meta-llama-3-1-70b-instruct",
         temperature=0,
         max_retries=2,
-        handle_parsing_errors=True,
     )
     return llm
 
@@ -21,10 +20,10 @@ def setup_the_llm():
 def setup_the_agent(llm, selected_df_pd):
     agent = create_pandas_dataframe_agent(
         llm=llm,
-        df=selected_df_pd,
         verbose=True,
-        agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
+        df=selected_df_pd,
         allow_dangerous_code=True,
+        handle_parsing_errors=True
     )
-
+    # agent_executor = AgentExecutor(agent=agent, handle_parsing_errors=True)
     return agent

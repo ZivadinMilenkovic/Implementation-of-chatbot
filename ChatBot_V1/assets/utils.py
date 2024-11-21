@@ -1,8 +1,7 @@
 from typing import Dict
 import pandas as pd
 from ..llm import setup_the_llm, setup_the_agent
-
-
+from langchain.schema import OutputParserException
 class MultiDataFrameAgentLLM:
     def __init__(self, dataframes: Dict[str, "DataFrame"], engine, herd_ids):
 
@@ -19,14 +18,14 @@ class MultiDataFrameAgentLLM:
         connection = self.engine.raw_connection()
 
         selected_df_pd = pd.read_sql_query(
-            f"SELECT * FROM {selected_df} WHERE HerdId IN ({','.join(map(str, self.herd_ids))})",
+            f"SELECT * FROM {selected_df} WHERE HerdIdentifier IN ({','.join(map(str, self.herd_ids))})",
             con=connection,
         )
 
         if selected_df_key:
             agent = setup_the_agent(self.llm, selected_df_pd)
 
-            result = agent.invoke(query)
+            result = agent.run(query)
 
             summary_prompt = f"""
             The user asked: '{query}'.

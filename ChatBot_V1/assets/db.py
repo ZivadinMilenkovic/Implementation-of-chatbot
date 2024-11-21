@@ -1,5 +1,5 @@
 def get_db():
     return {
-        "milkproduction": "milkproduction",
-        "streamerherdoverview": "streamerherdoverview",
+        "milk": "milk",
+        # "streamerherdoverview": "streamerherdoverview",
     }
