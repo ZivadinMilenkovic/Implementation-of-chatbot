@@ -91,8 +91,7 @@ async def get_user_herd_access():
 def test(input: InputModel):
     multi_df_agent_llm = MultiDataFrameAgentLLM(get_db(), engine, input.herds)
 
-    response = multi_df_agent_llm.run(input)
-
+    response = multi_df_agent_llm.run(input.question)
 
     if type(response) != str:
         return Response(

@@ -2,6 +2,8 @@ from typing import Dict
 import pandas as pd
 from ..llm import setup_the_llm, setup_the_agent
 from langchain.schema import OutputParserException
+
+
 class MultiDataFrameAgentLLM:
     def __init__(self, dataframes: Dict[str, "DataFrame"], engine, herd_ids):
 
@@ -26,7 +28,6 @@ class MultiDataFrameAgentLLM:
             agent = setup_the_agent(self.llm, selected_df_pd)
 
             result = agent.run(query)
-
 
             return result
         else:
