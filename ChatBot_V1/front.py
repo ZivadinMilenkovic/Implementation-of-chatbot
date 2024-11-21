@@ -1,5 +1,6 @@
+from datetime import datetime
 import streamlit as st
-import requests  # Import the requests library
+import requests 
 
 st.title("Chatbot")
 
@@ -29,7 +30,7 @@ if prompt := st.chat_input():
             api_url_for_chat,
             json={"question": prompt, "herds": herds.json()["HerdIds"]},
         )
-
+        print(datetime.now())
         if response.status_code == 200:
             msg = response.json()
             st.session_state.messages.append({"role": "assistant", "content": msg})

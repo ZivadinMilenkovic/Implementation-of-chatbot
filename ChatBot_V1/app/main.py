@@ -1,34 +1,23 @@
-from fastapi import FastAPI, HTTPException, Header, status, Response
+from datetime import datetime
+from fastapi import FastAPI, HTTPException, status
 
 import requests
-
-from pydantic import BaseModel
-
-from sqlalchemy.engine import create_engine
 
 from ..assets.db import get_db
 from ChatBot_V1.assets.utils import MultiDataFrameAgentLLM
 from dotenv import load_dotenv
-from ..model import InputModel, HerdAccess, UserHerdAccessResponse
-import logging
+from ..model import InputModel, UserHerdAccessResponse
 import os
+
 
 load_dotenv()
 
 app = FastAPI()
 
 
-engine = create_engine(
-    f"databricks+connector://token:{os.getenv('API_TOKEN_DATABRICKS1')}@{os.getenv('HOST1')}:443/default",
-    connect_args={
-        "http_path": f"/sql/1.0/warehouses/{os.getenv('WORKHOUSE1')}",
-    },
-)
-
-
 @app.get("/herd-access")
 async def get_user_herd_access():
-
+    print(datetime.now())
     auth_url = "https://bovinet.auth0.com/oauth/ro"
     auth_payload = {
         "client_id": os.getenv("CLIENT_ID"),
@@ -40,10 +29,10 @@ async def get_user_herd_access():
         "scope": "openid app_metadata profile perms",
         "device": "",
     }
-    print(auth_payload)
+
     try:
         auth_response = requests.post(auth_url, json=auth_payload)
-        print(auth_response)
+        
         auth_response.raise_for_status()
         auth_data = auth_response.json()
         token = auth_data.get("id_token")
@@ -57,7 +46,7 @@ async def get_user_herd_access():
         headers = {"Authorization": f"Bearer {token}"}
 
         herd_response = requests.get(herd_url, headers=headers)
-        logging.info(herd_response)
+
         if herd_response.status_code != 200:
             raise HTTPException(
                 status_code=herd_response.status_code,
@@ -89,14 +78,8 @@ async def get_user_herd_access():
 
 @app.post("/testtest", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
-    multi_df_agent_llm = MultiDataFrameAgentLLM(get_db(), engine, input.herds)
+    multi_df_agent_llm = MultiDataFrameAgentLLM(get_db())
 
     response = multi_df_agent_llm.run(input.question)
-
-    if type(response) != str:
-        return Response(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            content="Failed to get response from the API.",
-        )
-
+    
     return response

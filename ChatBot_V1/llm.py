@@ -1,11 +1,5 @@
-import os
-
-from langchain.agents import AgentType
-from langchain_google_genai import ChatGoogleGenerativeAI
-
-from langchain_experimental.agents.agent_toolkits import create_pandas_dataframe_agent
+from langchain_community.agent_toolkits.sql.base import create_sql_agent
 from langchain_databricks import ChatDatabricks
-from langchain.agents import AgentExecutor
 
 
 def setup_the_llm():
@@ -14,17 +8,18 @@ def setup_the_llm():
         target_uri="databricks",
         endpoint="/serving-endpoints/databricks-meta-llama-3-1-70b-instruct",
         temperature=0,
-        max_retries=2,
+        max_retries=20,
     )
     return llm
 
 
-def setup_the_agent(llm, selected_df_pd):
-    agent = create_pandas_dataframe_agent(
+def setup_the_agent(llm, toolkit):
+    agent = create_sql_agent(
         llm=llm,
         verbose=True,
-        df=selected_df_pd,
+        toolkit = toolkit,
         allow_dangerous_code=True,
         handle_parsing_errors=True,
     )
     return agent
+

@@ -1,37 +1,23 @@
-from typing import Dict
-import pandas as pd
 from ..llm import setup_the_llm, setup_the_agent
-from langchain.schema import OutputParserException
-
+from langchain_community.agent_toolkits.sql.toolkit import SQLDatabaseToolkit
 
 class MultiDataFrameAgentLLM:
-    def __init__(self, dataframes: Dict[str, "DataFrame"], engine, herd_ids):
+    def __init__(self, db):
 
         self.llm = setup_the_llm()
-        self.dataframes = dataframes
-        self.engine = engine
-        self.herd_ids = herd_ids
+        self.db = db
 
-    def run(self, query: str) -> str:
 
-        selected_df_key = self.select_dataframe_using_llm(query).strip()
-        selected_df = self.dataframes.get(selected_df_key)
+    def run(self, query: str):
+        
+        toolkit = SQLDatabaseToolkit(db = self.db, llm = self.llm)
+       
+        agent = setup_the_agent(self.llm, toolkit)
 
-        connection = self.engine.raw_connection()
+        result = agent.run(query)
+        print(result)
 
-        selected_df_pd = pd.read_sql_query(
-            f"SELECT * FROM {selected_df} WHERE HerdIdentifier IN ({','.join(map(str, self.herd_ids))})",
-            con=connection,
-        )
-
-        if selected_df_key:
-            agent = setup_the_agent(self.llm, selected_df_pd)
-
-            result = agent.run(query)
-
-            return result
-        else:
-            return f"No matching DataFrame found for the query: {query}"
+        return result
 
     def select_dataframe_using_llm(self, query: str) -> str:
 
