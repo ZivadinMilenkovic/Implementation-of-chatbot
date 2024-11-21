@@ -15,7 +15,7 @@ class DataModel(BaseModel):
 
 
 class InputModel(BaseModel):
-    input: str
+    question: str
     herds: list
 
 

@@ -16,16 +16,16 @@ if prompt := st.chat_input():
     
     
     api_url_for_chat = "http://0.0.0.0:8000/testtest"
-    # api_url_for_herd = "http://0.0.0.0:8000/herd-access"
+    api_url_for_herd = "http://0.0.0.0:8000/herd-access"
     
     with st.spinner("Processing..."):
-        # herds  = requests.get(api_url_for_herd)
-        # if(herds.status_code!=200):
-        #     st.error("Bad token")
-        #     st.stop()
+        herds  = requests.get(api_url_for_herd)
+        if(herds.status_code!=200):
+            st.error("Bad token")
+            st.stop()
             
         response = requests.post(api_url_for_chat, json={"input":prompt,
-                                                     "herds": [1085]
+                                                     "herds": herds.json()["HerdIds"]
                                                      })
         
         if response.status_code==200:

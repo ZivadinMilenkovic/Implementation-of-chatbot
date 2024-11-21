@@ -27,15 +27,8 @@ class MultiDataFrameAgentLLM:
 
             result = agent.run(query)
 
-            summary_prompt = f"""
-            The user asked: '{query}'.
-            The agent's answer was: '{result}'.
-            Summarize this answer in a contextual style that provides information related to the herd and animals, 
-            so the user gets a complete and understandable response.
-            """
-            summary_response = self.llm.invoke(summary_prompt)
 
-            return summary_response.content if summary_response else result
+            return result
         else:
             return f"No matching DataFrame found for the query: {query}"
 

@@ -12,7 +12,7 @@ def setup_the_llm():
         target_uri="databricks",
         endpoint="/serving-endpoints/databricks-meta-llama-3-1-70b-instruct",
         temperature=0,
-        max_retries=2,
+        max_retries=2
     )
     return llm
 
@@ -23,7 +23,7 @@ def setup_the_agent(llm, selected_df_pd):
         verbose=True,
         df=selected_df_pd,
         allow_dangerous_code=True,
-        handle_parsing_errors=True
+        handle_parsing_errors=True,
+        
     )
-    # agent_executor = AgentExecutor(agent=agent, handle_parsing_errors=True)
     return agent
