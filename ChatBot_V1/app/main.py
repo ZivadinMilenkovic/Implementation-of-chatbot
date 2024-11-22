@@ -3,8 +3,8 @@ from fastapi import FastAPI, HTTPException, status
 
 import requests
 
-from ..assets.db import get_db
-from ChatBot_V1.assets.utils import MultiDataFrameAgentLLM
+from ..assets.db import get_databricks_hive_metastore
+from ChatBot_V1.assets.multi_data_frame_agent_llm import MultiDataFrameAgentLLM
 from dotenv import load_dotenv
 from ..model import InputModel, UserHerdAccessResponse
 import os
@@ -14,10 +14,11 @@ load_dotenv()
 
 app = FastAPI()
 
+multi_df_agent_llm = MultiDataFrameAgentLLM(get_databricks_hive_metastore())
 
 @app.get("/herd-access")
 async def get_user_herd_access():
-    print(datetime.now())
+    print(f"Start with getting all herds{datetime.now()}")
     auth_url = "https://bovinet.auth0.com/oauth/ro"
     auth_payload = {
         "client_id": os.getenv("CLIENT_ID"),
@@ -67,6 +68,8 @@ async def get_user_herd_access():
                 herd_id = herd.get("HerdId")
                 if herd_id is not None:
                     herd_ids.add(herd_id)
+                    
+        print(f"Finish with getting all herds{datetime.now()}")
 
         return UserHerdAccessResponse(HerdIds=list(herd_ids))
 
@@ -78,8 +81,9 @@ async def get_user_herd_access():
 
 @app.post("/testtest", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
-    multi_df_agent_llm = MultiDataFrameAgentLLM(get_db())
+
+    print(f"Start with getting answer from llm{datetime.now()}")
 
     response = multi_df_agent_llm.run(input.question)
-    
+
     return response

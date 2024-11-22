@@ -7,18 +7,17 @@ def setup_the_llm():
     llm = ChatDatabricks(
         target_uri="databricks",
         endpoint="/serving-endpoints/databricks-meta-llama-3-1-70b-instruct",
-        temperature=0,
-        max_retries=20,
+        temperature=0.1,
+        max_retries=4,
     )
     return llm
 
 
-def setup_the_agent(llm, toolkit):
+def setup_the_agent(llm, db):
     agent = create_sql_agent(
         llm=llm,
         verbose=True,
-        toolkit = toolkit,
-        allow_dangerous_code=True,
+        db = db,
         handle_parsing_errors=True,
     )
     return agent

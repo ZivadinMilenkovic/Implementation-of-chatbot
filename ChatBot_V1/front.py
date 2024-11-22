@@ -30,10 +30,10 @@ if prompt := st.chat_input():
             api_url_for_chat,
             json={"question": prompt, "herds": herds.json()["HerdIds"]},
         )
-        print(datetime.now())
+        print(f"Finish with getting answer from llm{datetime.now()}")
         if response.status_code == 200:
             msg = response.json()
             st.session_state.messages.append({"role": "assistant", "content": msg})
             st.chat_message("assistant").write(msg)
         else:
-            st.error("Failed to get response from the API.")
+            st.error("Failed to get response from the API, try again or try other question.")
