@@ -16,9 +16,12 @@ app = FastAPI()
 
 multi_df_agent_llm = MultiDataFrameAgentLLM(get_databricks_hive_metastore())
 
+
 @app.get("/herd-access")
 async def get_user_herd_access():
+
     print(f"Start with getting all herds{datetime.now()}")
+
     auth_url = "https://bovinet.auth0.com/oauth/ro"
     auth_payload = {
         "client_id": os.getenv("CLIENT_ID"),
@@ -33,7 +36,7 @@ async def get_user_herd_access():
 
     try:
         auth_response = requests.post(auth_url, json=auth_payload)
-        
+
         auth_response.raise_for_status()
         auth_data = auth_response.json()
         token = auth_data.get("id_token")
@@ -68,7 +71,7 @@ async def get_user_herd_access():
                 herd_id = herd.get("HerdId")
                 if herd_id is not None:
                     herd_ids.add(herd_id)
-                    
+
         print(f"Finish with getting all herds{datetime.now()}")
 
         return UserHerdAccessResponse(HerdIds=list(herd_ids))

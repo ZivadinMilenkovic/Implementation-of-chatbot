@@ -8,17 +8,16 @@ def setup_the_llm():
         target_uri="databricks",
         endpoint="/serving-endpoints/databricks-meta-llama-3-1-70b-instruct",
         temperature=0,
-        max_retries=1,        
+        max_retries=1,
     )
     return llm
 
 
 def setup_the_agent(llm, db):
-    agent = create_sql_agent(
+    sql_agent = create_sql_agent(
         llm=llm,
         verbose=True,
-        db = db,
+        db=db,
         handle_parsing_errors=True,
     )
-    return agent
-
+    return sql_agent

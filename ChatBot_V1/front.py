@@ -1,6 +1,6 @@
 from datetime import datetime
 import streamlit as st
-import requests 
+import requests
 
 st.title("Chatbot")
 
@@ -36,4 +36,6 @@ if prompt := st.chat_input():
             st.session_state.messages.append({"role": "assistant", "content": msg})
             st.chat_message("assistant").write(msg)
         else:
-            st.error("Failed to get response from the API, try again or try other question.")
+            st.error(
+                "Failed to get response from the API, try again or try other question."
+            )
