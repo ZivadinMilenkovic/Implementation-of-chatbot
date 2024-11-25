@@ -79,7 +79,7 @@ async def get_user_herd_access():
         )
 
 
-@app.post("/testtest", status_code=status.HTTP_200_OK)
+@app.post("/ask_the_bot", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
 
     print(f"Start with getting answer from llm{datetime.now()}")

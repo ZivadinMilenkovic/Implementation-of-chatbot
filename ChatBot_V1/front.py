@@ -17,7 +17,7 @@ if prompt := st.chat_input():
     st.session_state.messages.append({"role": "user", "content": prompt})
     st.chat_message("user").write(prompt)
 
-    api_url_for_chat = "http://0.0.0.0:8000/testtest"
+    api_url_for_chat = "http://0.0.0.0:8000/ask_the_bot"
     api_url_for_herd = "http://0.0.0.0:8000/herd-access"
 
     with st.spinner("Processing..."):
