@@ -1,12 +1,10 @@
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, status
-
-import requests
-
-from ..assets.db import get_databricks_hive_metastore
-from ChatBot_V1.assets.multi_data_frame_agent_llm import MultiDataFrameAgentLLM
+from core.db import get_databricks_hive_metastore
+from core.multi_df_agent import MultiDataFrameAgentLLM
+from models.schemas import InputModel, UserHerdAccessResponse
 from dotenv import load_dotenv
-from ..model import InputModel, UserHerdAccessResponse
+import requests
 import os
 
 
