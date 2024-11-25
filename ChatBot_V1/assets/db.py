@@ -7,8 +7,6 @@ def get_databricks_hive_metastore():
         schema="default",
         host=os.getenv('HOST1'),
         api_token=os.getenv("API_TOKEN_DATABRICKS1"),
-        # cluster_id="1120-105635-143y84ou"
-        warehouse_id=os.getenv("WORKHOUSE1")
-
+        cluster_id=os.getenv("CLUSTER_ID")
     )
     return db

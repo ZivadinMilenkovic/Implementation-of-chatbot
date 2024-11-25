@@ -7,8 +7,10 @@ def setup_the_llm():
     llm = ChatDatabricks(
         target_uri="databricks",
         endpoint="/serving-endpoints/databricks-meta-llama-3-1-70b-instruct",
-        temperature=0.1,
-        max_retries=4,
+        temperature=0,
+        max_retries=1,
+        timeout=15
+        
     )
     return llm
 
