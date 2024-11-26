@@ -1,6 +1,7 @@
 from typing import List
 from pydantic import BaseModel
 
+
 class DataModel(BaseModel):
     input: dict[str, List[dict[str, str]]]
     config: dict[str, dict[str, str]]
@@ -12,13 +13,15 @@ class DataModel(BaseModel):
             config={"configurable": {"session_id": session_id}},
         )
 
+
 class InputModel(BaseModel):
     question: str
     herds: List[int]
 
+
 class HerdAccess(BaseModel):
     HerdId: int
 
+
 class UserHerdAccessResponse(BaseModel):
     HerdIds: List[int]
-    

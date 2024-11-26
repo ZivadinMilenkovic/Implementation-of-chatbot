@@ -1,6 +1,7 @@
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, status
-from ..core.db import get_databricks_hive_metastore
+from ..core.db import get_dataframes
+from ..core.spark_session import get_spark_session
 from ..core.multi_df_agent import MultiDataFrameAgentLLM
 from ..models.schemas import InputModel, UserHerdAccessResponse
 from dotenv import load_dotenv
@@ -12,13 +13,11 @@ load_dotenv()
 
 app = FastAPI()
 
-multi_df_agent_llm = MultiDataFrameAgentLLM(get_databricks_hive_metastore())
-
 
 @app.get("/herd-access")
 async def get_user_herd_access():
 
-    print(f"Start with getting all herds{datetime.now()}")
+    print(f"Start with getting all herds {datetime.now()}")
 
     auth_url = "https://bovinet.auth0.com/oauth/ro"
     auth_payload = {
@@ -80,10 +79,16 @@ async def get_user_herd_access():
         )
 
 
+
 @app.post("/ask_the_bot", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
+    multi_df_agent_llm = MultiDataFrameAgentLLM(
+    dataframes=get_dataframes(),
+    herd_ids=input.herds,
+    spark=get_spark_session(),
+    )
 
-    print(f"Start with getting answer from llm{datetime.now()}")
+    print(f"Start with getting answer from llm {datetime.now()}")
 
     response = multi_df_agent_llm.run(input.question)
 
