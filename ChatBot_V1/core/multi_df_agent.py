@@ -1,4 +1,4 @@
-from core.setup_agent import setup_the_llm, setup_the_agent
+from .setup_agent import setup_the_llm, setup_the_agent
 
 class MultiDataFrameAgentLLM:
     def __init__(self, db):

@@ -5,7 +5,7 @@ def get_databricks_hive_metastore():
     return SQLDatabase.from_databricks(
         catalog="hive_metastore",
         schema="default",
-        host=os.getenv("HOST"),
-        api_token=os.getenv("API_TOKEN"),
+        host=os.getenv("HOST1"),
+        api_token=os.getenv("API_TOKEN_DATABRICKS1"),
         cluster_id=os.getenv("CLUSTER_ID"),
     )

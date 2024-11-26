@@ -17,6 +17,7 @@
 - Nakon par testiranje odgovor smo dobili u proseku za 9 sekundi kada smo smanjili kolinicnu podatka na pola(20000 redova)
 
 - Kolicina podataka ne utice na brzinu preciznost i cenu (utice znemarljivo)
+
 ## Ubacivanje jos neke table da vidimo kako to utice na agenta
 
 ## Poboljsanje imenovanja
@@ -24,3 +25,5 @@
 - Uradjeno, potrebna provera 
 
 ## Sta sve utice na brzinu dobijanja odgovora
+
+- Najvise utice to koliko puta agent napravio query, da li je prvi query executovan, da li smo od njega dobili rez, da li agent ne moze da parisira rezultat query-a, da li agent moze da napravi query.

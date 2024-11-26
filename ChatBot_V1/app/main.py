@@ -1,8 +1,8 @@
 from datetime import datetime
 from fastapi import FastAPI, HTTPException, status
-from core.db import get_databricks_hive_metastore
-from core.multi_df_agent import MultiDataFrameAgentLLM
-from models.schemas import InputModel, UserHerdAccessResponse
+from ..core.db import get_databricks_hive_metastore
+from ..core.multi_df_agent import MultiDataFrameAgentLLM
+from ..models.schemas import InputModel, UserHerdAccessResponse
 from dotenv import load_dotenv
 import requests
 import os
