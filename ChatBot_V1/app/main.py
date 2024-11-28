@@ -15,9 +15,7 @@ load_dotenv()
 
 app = FastAPI()
 
-SYSTEM_MESSAGE = get_system_message(
-    get_spark_session(), "main"
-)
+SYSTEM_MESSAGE = get_system_message()
 
 
 @app.get("/herd-access")
@@ -89,8 +87,7 @@ async def get_user_herd_access():
 def test(input: InputModel):
 
     message = deepcopy(SYSTEM_MESSAGE)
-    print(message)
-    print(input.question)
+
     message.append(
         {"role": "user", "content": input.question})
 

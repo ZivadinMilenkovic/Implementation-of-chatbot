@@ -18,10 +18,10 @@ class AskTheDeltaTable:
 
         sql_result = completions_response.choices[0]['message']['content']
 
+        print(sql_result)
+
         df = self.spark.sql(sql_result)
         df_to_list = [row.asDict() for row in df.collect()]
-
-        print(sql_result)
 
         RESPONSE_TEMPLATE = return_sql_response(
             df_to_list, question)
