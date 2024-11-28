@@ -33,7 +33,8 @@ if prompt := st.chat_input():
         print(f"Finish with getting answer from llm{datetime.now()}")
         if response.status_code == 200:
             msg = response.json()
-            st.session_state.messages.append({"role": "assistant", "content": msg})
+            st.session_state.messages.append(
+                {"role": "assistant", "content": msg})
             st.chat_message("assistant").write(msg)
         else:
             st.error(

@@ -1,17 +1,21 @@
 from datetime import datetime
+import mlflow.deployments
 from fastapi import FastAPI, HTTPException, status
-from ..core.db import get_dataframes
-from ..core.spark_session import get_spark_session
-from ..core.multi_df_agent import MultiDataFrameAgentLLM
-from ..models.schemas import InputModel, UserHerdAccessResponse
 from dotenv import load_dotenv
 import requests
 import os
-
+from ..core.utils import get_system_message
+from ..core.spark_session import get_spark_session
+from ..core.ask_the_delta_table import AskTheDeltaTable
+from ..models.schemas import InputModel, UserHerdAccessResponse
 
 load_dotenv()
 
 app = FastAPI()
+
+SYSTEM_MESSAGE = get_system_message(
+    get_spark_session(), "main"
+)
 
 
 @app.get("/herd-access")
@@ -79,17 +83,21 @@ async def get_user_herd_access():
         )
 
 
-
 @app.post("/ask_the_bot", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
-    multi_df_agent_llm = MultiDataFrameAgentLLM(
-    dataframes=get_dataframes(),
-    herd_ids=input.herds,
-    spark=get_spark_session(),
-    )
+
+    message = SYSTEM_MESSAGE
+
+    ai_in_delta_tables = AskTheDeltaTable(
+        catalog_name="main",
+        client=mlflow.deployments.get_deploy_client("databricks"),
+        spark=get_spark_session(),
+
+        system_messages=message.append(
+            {"role": "user", "content": input.question}))
 
     print(f"Start with getting answer from llm {datetime.now()}")
 
-    response = multi_df_agent_llm.run(input.question)
+    response = ai_in_delta_tables.run(input.question)
 
     return response

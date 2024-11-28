@@ -18,8 +18,6 @@
 
 - Kolicina podataka ne utice na brzinu preciznost i cenu (utice znemarljivo)
 
-## Ubacivanje jos neke table da vidimo kako to utice na agenta
-
 ## Poboljsanje imenovanja
 
 - Uradjeno, potrebna provera 
