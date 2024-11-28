@@ -4,6 +4,8 @@ from fastapi import FastAPI, HTTPException, status
 from dotenv import load_dotenv
 import requests
 import os
+from copy import deepcopy
+
 from ..core.utils import get_system_message
 from ..core.spark_session import get_spark_session
 from ..core.ask_the_delta_table import AskTheDeltaTable
@@ -86,15 +88,18 @@ async def get_user_herd_access():
 @app.post("/ask_the_bot", status_code=status.HTTP_200_OK)
 def test(input: InputModel):
 
-    message = SYSTEM_MESSAGE
+    message = deepcopy(SYSTEM_MESSAGE)
+    print(message)
+    print(input.question)
+    message.append(
+        {"role": "user", "content": input.question})
 
     ai_in_delta_tables = AskTheDeltaTable(
         catalog_name="main",
         client=mlflow.deployments.get_deploy_client("databricks"),
         spark=get_spark_session(),
 
-        system_messages=message.append(
-            {"role": "user", "content": input.question}))
+        system_messages=message)
 
     print(f"Start with getting answer from llm {datetime.now()}")
 

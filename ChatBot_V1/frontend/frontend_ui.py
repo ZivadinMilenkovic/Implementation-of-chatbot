@@ -25,7 +25,7 @@ if prompt := st.chat_input():
         if herds.status_code != 200:
             st.error("Bad token")
             st.stop()
-
+        print(prompt)
         response = requests.post(
             api_url_for_chat,
             json={"question": prompt, "herds": herds.json()["HerdIds"]},
