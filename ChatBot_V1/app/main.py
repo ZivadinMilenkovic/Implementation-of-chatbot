@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 import mlflow.deployments
 from fastapi import FastAPI, HTTPException, status
 from dotenv import load_dotenv
@@ -6,16 +7,40 @@ import requests
 import os
 from copy import deepcopy
 
-from ..core.utils import get_system_message
+from ..core.utils import generate_system_message_with_metadata
 from ..core.spark_session import get_spark_session
-from ..core.ask_the_delta_table import AskTheDeltaTable
+from ..core.delta_table_handler import Delta_Table_Handler
 from ..models.schemas import InputModel, UserHerdAccessResponse
 
 load_dotenv()
 
 app = FastAPI()
 
-SYSTEM_MESSAGE = get_system_message()
+
+class CustomFormatter(logging.Formatter):
+    # Define color codes
+    RESET = "\033[0m"
+    COLORS = {
+        "DEBUG": "\033[94m",    # Blue
+        "INFO": "\033[92m",     # Green
+        "WARNING": "\033[93m",  # Yellow
+        "ERROR": "\033[91m",    # Red
+        "CRITICAL": "\033[95m",  # Magenta
+    }
+
+    def format(self, record):
+        log_color = self.COLORS.get(record.levelname, self.RESET)
+        message = super().format(record)
+        return f"{log_color}{message}{self.RESET}"
+
+
+# Configure logging with the custom formatter
+handler = logging.StreamHandler()  # Output to console
+formatter = CustomFormatter("%(asctime)s - %(levelname)s - %(message)s")
+handler.setFormatter(formatter)
+
+logging.basicConfig(level=logging.DEBUG, handlers=[handler])
+SYSTEM_MESSAGE = generate_system_message_with_metadata()
 
 
 @app.get("/herd-access")
@@ -84,22 +109,32 @@ async def get_user_herd_access():
 
 
 @app.post("/ask_the_bot", status_code=status.HTTP_200_OK)
-def test(input: InputModel):
+def ask_the_bot_handler(input: InputModel):
+    logging.info(f"Received question at {datetime.now()}: {input.question}")
 
+    # Deep copy of the system message for this request
     message = deepcopy(SYSTEM_MESSAGE)
+    message.append({"role": "user", "content": input.question})
 
-    message.append(
-        {"role": "user", "content": input.question})
+    try:
+        logging.info("Initializing Delta_Table_Handler instance.")
+        ai_in_delta_tables = Delta_Table_Handler(
+            catalog_name="main",
+            client=mlflow.deployments.get_deploy_client("databricks"),
+            spark=get_spark_session(),
+            system_messages=message
+        )
 
-    ai_in_delta_tables = AskTheDeltaTable(
-        catalog_name="main",
-        client=mlflow.deployments.get_deploy_client("databricks"),
-        spark=get_spark_session(),
+        logging.info(f"Query execution started at {datetime.now()}.")
+        response = ai_in_delta_tables.execute_query_with_response(
+            input.question)
+        logging.info(f"Query execution completed at {datetime.now()}.")
 
-        system_messages=message)
+        return {"response": response}
 
-    print(f"Start with getting answer from llm {datetime.now()}")
-
-    response = ai_in_delta_tables.run(input.question)
-
-    return response
+    except Exception as e:
+        logging.error(f"Error while processing request: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"An error occurred: {str(e)}"
+        )

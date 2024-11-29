@@ -1,28 +1,33 @@
 import json
+import logging
 import os
 
 import requests
 
 
-def sql_template(table_meta_text, column_meta_text):
+def create_sql_template(table_metadata, column_metadata):
+    logging.info(
+        "Creating SQL template using provided table and column metadata.")
     SQL_TEMPLATE = f"""This is the relevant table and column information for building SQL code.
 
     CONTEXT TO USE TO CONSTRUCT SQL QUERY:
     TABLE INFORMATION:
-    {table_meta_text}
+    {table_metadata}
 
     COLUMN INFORMATION:
-    {column_meta_text}
+    {column_metadata}
     """
 
     EXAMPLE_RESPONSE = f""" You are a SQL assistant. Your only job is to write proper SQL code that can be ran in Databricks notebooks. YOU DO NOT DO ANYTHING OTHER THAN WRITE SQL CODE.. Here is an example of how you would respond:
 
 
     """
+    logging.info("SQL template and example response created successfully.")
     return SQL_TEMPLATE, EXAMPLE_RESPONSE
 
 
-def return_sql_response(df_to_list, user_question):
+def generate_sql_response_template(df_to_list, user_question):
+    logging.info("Generating response template for the user's SQL question.")
 
     RESPONSE_TEMPLATE = f"""
         You are a nice assistant that organizes information into a summary.
@@ -35,37 +40,48 @@ def return_sql_response(df_to_list, user_question):
         <USER'S QUERY>:
         {user_question}
         """
+
+    logging.info("Response template generated successfully.")
     return RESPONSE_TEMPLATE
 
 
-def get_metadata(table_name):
+def fetch_table_metadata(table_name):
     endpoint = f"https://{os.getenv('HOST1')}/api/2.1/unity-catalog/tables/{table_name}"
 
     headers = {
         "Authorization": f"Bearer {os.getenv('API_TOKEN_DATABRICKS1')}"
     }
 
-    table_meta_text = []
+    logging.info(
+        f"Fetching metadata for table: {table_name} from Databricks Unity Catalog API.")
 
-    table_details = requests.get(
-        endpoint, headers=headers)
+    try:
+        response = requests.get(endpoint, headers=headers)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        logging.error(f"Failed to fetch metadata for table {table_name}: {e}")
+        return None, None
 
-    table_meta_text.append(table_details.json()["comment"])
+    table_details = response.json()
+    table_meta_text = table_details.get("comment", "")
+    logging.info(f"Fetched table comment: {table_meta_text}")
 
-    data_list = []
+    column_meta_list = [
+        {
+            'column_name': column['name'],
+            'comment': column.get('comment', 'No comment provided'),
+            'data_type': column.get('type_text', 'Unknown type')
+        }
+        for column in table_details.get("columns", [])
+    ]
 
-    for detail in table_details.json()["columns"]:
-        data_list.append({
-            'column_name': detail['name'],
-            'comment': detail['comment'],
-            'data_type': detail['type_text']
-        })
+    column_meta_text = json.dumps(column_meta_list, indent=4)
+    logging.info(f"Extracted column metadata for table {table_name}.")
 
-    column_meta_text = json.dumps(data_list, indent=4)
     return str(table_meta_text), column_meta_text
 
 
-def get_system_message():
+def generate_system_message_with_metadata():
 
     endpoint = f"https://{os.getenv('HOST1')}/api/2.1/unity-catalog/tables"
 
@@ -78,28 +94,39 @@ def get_system_message():
         "schema_name": "aidev"
     }
 
-    list_of_table_names = []
+    logging.info("Fetching table details from Databricks Unity Catalog API")
 
-    table_details = requests.get(
-        endpoint, headers=headers, params=params)
+    try:
+        response = requests.get(endpoint, headers=headers, params=params)
+        response.raise_for_status()
+    except requests.RequestException as e:
+        logging.error(f"Failed to fetch table details: {e}")
+        return []
 
-    for detail in table_details.json()["tables"]:
-        list_of_table_names.append(f"main.aidev.{detail['name']}")
+    table_names = [
+        f"main.aidev.{detail['name']}" for detail in response.json().get("tables", [])]
 
-    table_meta_text = ""
-    column_meta_text = ""
+    logging.info(f"Retrieved table list from schema 'aidev': {table_names}")
 
-    for table_name in list_of_table_names:
-        meta_text_for_each_table, column_meta_text_for_each_table = get_metadata(
+    tables_metadata = ""
+    column_metadata = ""
+
+    for table_name in table_names:
+        table_meta, column_meta = fetch_table_metadata(
             table_name)
 
-        if meta_text_for_each_table != None and column_meta_text_for_each_table != None:
+        if table_meta != None and column_meta != None:
 
-            table_meta_text = table_meta_text + meta_text_for_each_table
-            column_meta_text = column_meta_text + column_meta_text_for_each_table
+            tables_metadata = tables_metadata + table_meta
+            column_metadata = column_metadata + column_meta
 
-    SQL_TEMPLATE, EXAMPLE_RESPONSE = sql_template(
-        table_meta_text, column_meta_text)
+    logging.info(f"Metadata fetched for tables\n{table_names}")
+
+    SQL_TEMPLATE, EXAMPLE_RESPONSE = create_sql_template(
+        tables_metadata, column_metadata)
+
+    logging.info(
+        "System message created successfully")
 
     system_message = [
         {
