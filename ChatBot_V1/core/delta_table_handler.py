@@ -1,14 +1,16 @@
 import logging
 from .utils import generate_sql_response_template
 from .client_setup import get_the_client
+import re
 
 
 class Delta_Table_Handler:
-    def __init__(self, catalog_name, spark, client, system_messages):
+    def __init__(self, catalog_name, spark, client, system_messages, herd_ids):
         self.catalog_name = catalog_name
         self.spark = spark
         self.client = client
         self.system_messages = system_messages
+        self.herd_ids = herd_ids
 
     def execute_query_with_response(self, question: str) -> str:
         """
@@ -45,6 +47,14 @@ class Delta_Table_Handler:
 
         try:
             logging.info("Executing SQL query using Spark.")
+
+            herd_filter = f"HerdIdentifier IN ({','.join(map(str, self.herd_ids))})"
+
+            if "WHERE" in generated_sql:
+                combined_sql = f"{generated_sql.strip(';')} AND {herd_filter}"
+            else:
+                combined_sql = f"{generated_sql.strip()} WHERE {herd_filter}"
+            print(combined_sql)
             df = self.spark.sql(generated_sql)
             df_to_list = [row.asDict() for row in df.collect()]
             logging.info(

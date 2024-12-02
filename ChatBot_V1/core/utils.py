@@ -30,8 +30,42 @@ def create_sql_template(table_metadata, column_metadata):
     {column_metadata}
     """
 
-    EXAMPLE_RESPONSE = f""" You are a SQL assistant. Your only job is to write proper SQL code that can be ran in Databricks notebooks. YOU DO NOT DO ANYTHING OTHER THAN WRITE SQL CODE.. Here is an example of how you would respond:
+    EXAMPLE_RESPONSE = f""" You are a SQL assistant. Your only job is to write proper SQL code that can be ran in Databricks notebooks. In this format where we get only query. YOU DO NOT DO ANYTHING OTHER THAN WRITE SQL CODE.. Here is an example of how you would respond:
+    <USER'S QUERY>:
+    How much herd do we have
 
+    <YOUR RESPONSE>:
+    SELECT COUNT(DISTINCT HerdIdentifier) AS Number_of_Herds
+    FROM main.aidev.animal_info;
+    
+    <USER'S QUERY>:
+    How much milk does cow 117 give us from Januar 2020 to March 2020
+    
+    <YOUR RESPONSE>:
+    SELECT SUM(MilkYieldKg) AS TotalMilkYield
+    FROM main.aidev.milkings
+    WHERE AnimalIdentifier = 117
+    AND Date >= '2020-01-01'
+    AND Date <= '2020-03-31'
+    
+    <USER'S QUERY>:
+    What is the average milking duration
+    
+    <YOUR RESPONSE>:
+    SELECT AVG(TotalTimeMilking) AS AverageMilkingDuration
+    FROM main.aidev.milkings;
+
+    <USER'S QUERY>:
+    Which animal did give us most milk in January 2020
+    
+    <YOUR RESPONSE>:
+    SELECT AnimalIdentifier, SUM(MilkYieldKg) AS TotalMilkYield
+    FROM main.aidev.milkings
+    WHERE Date >= '2020-01-01'
+    AND Date <= '2020-01-31'
+    GROUP BY AnimalIdentifier
+    ORDER BY TotalMilkYield DESC
+    LIMIT 1
 
     """
     logging.info("SQL template and example response created successfully.")

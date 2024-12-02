@@ -108,7 +108,8 @@ def ask_the_bot_handler(input: InputModel):
             catalog_name="main",
             client=mlflow.deployments.get_deploy_client("databricks"),
             spark=spark,
-            system_messages=message
+            system_messages=message,
+            herd_ids=input.herds
         )
 
         logging.info(f"Query execution started at {datetime.now()}.")
