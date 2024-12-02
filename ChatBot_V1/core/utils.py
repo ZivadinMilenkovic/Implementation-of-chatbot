@@ -6,6 +6,18 @@ import requests
 
 
 def create_sql_template(table_metadata, column_metadata):
+    """
+    Creates a SQL template and an example response for the assistant.
+
+    Args:
+        table_metadata (str): Metadata of the tables as a formatted string.
+        column_metadata (str): Metadata of the columns as a formatted string.
+
+    Returns:
+        tuple: A SQL_TEMPLATE string containing the structure for generating SQL queries
+               and an EXAMPLE_RESPONSE string illustrating an example assistant response.
+    """
+
     logging.info(
         "Creating SQL template using provided table and column metadata.")
     SQL_TEMPLATE = f"""This is the relevant table and column information for building SQL code.
@@ -27,6 +39,17 @@ def create_sql_template(table_metadata, column_metadata):
 
 
 def generate_sql_response_template(df_to_list, user_question):
+    """
+    Generates a response template for the assistant based on a user's question and a data summary.
+
+    Args:
+        df_to_list (list): A list of dictionaries representing the query result.
+        user_question (str): The question or request made by the user.
+
+    Returns:
+        str: A response template that integrates the user's query and the formatted query result.
+    """
+
     logging.info("Generating response template for the user's SQL question.")
 
     RESPONSE_TEMPLATE = f"""
@@ -46,6 +69,17 @@ def generate_sql_response_template(df_to_list, user_question):
 
 
 def fetch_table_metadata(table_name):
+    """
+    Fetches metadata for a specific table from the Databricks Unity Catalog API.
+
+    Args:
+        table_name (str): The fully qualified name of the table (e.g., catalog.schema.table).
+
+    Returns:
+        tuple: 
+            - A string containing the table comment (or empty if not available).
+            - A JSON-formatted string containing the metadata of the table's columns.
+    """
     endpoint = f"https://{os.getenv('HOST1')}/api/2.1/unity-catalog/tables/{table_name}"
 
     headers = {
@@ -82,6 +116,17 @@ def fetch_table_metadata(table_name):
 
 
 def generate_system_message_with_metadata():
+    """
+    Generates a system message by aggregating metadata from all tables in the specified schema.
+
+    Retrieves table and column metadata from the Databricks Unity Catalog API, 
+    creates SQL templates using the metadata, and compiles it into a system message.
+
+    Returns:
+        list: A list of dictionaries representing the system message, including:
+              - An example assistant response.
+              - A SQL template for generating SQL queries.
+    """
 
     endpoint = f"https://{os.getenv('HOST1')}/api/2.1/unity-catalog/tables"
 

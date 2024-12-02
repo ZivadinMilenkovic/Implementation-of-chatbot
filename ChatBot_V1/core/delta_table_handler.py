@@ -11,6 +11,24 @@ class Delta_Table_Handler:
         self.system_messages = system_messages
 
     def execute_query_with_response(self, question: str) -> str:
+        """
+        Processes a user question to generate a SQL query, execute it, and return the interpreted results.
+
+        This function performs the following steps:
+        1. Generates a SQL query based on the user's question using a language model.
+        2. Executes the generated SQL query using Spark to retrieve results from the catalog.
+        3. Formats the results into a response template.
+        4. Requests a final interpretation of the results from a language model.
+
+        Args:
+            question (str): The user's question or request that needs to be answered with SQL.
+
+        Returns:
+            str: The final interpreted result as a string.
+                If an error occurs at any step, a descriptive error message is returned.
+
+        """
+
         logging.info(
             f"Processing question: '{question}' for catalog: {self.catalog_name}")
 

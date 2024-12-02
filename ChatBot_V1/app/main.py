@@ -10,37 +10,23 @@ from copy import deepcopy
 from ..core.utils import generate_system_message_with_metadata
 from ..core.spark_session import get_spark_session
 from ..core.delta_table_handler import Delta_Table_Handler
-from ..models.schemas import InputModel, UserHerdAccessResponse
+from ..models.schemas import InputModel, UserHerdAccessResponse, CustomFormatter
 
 load_dotenv()
 
 app = FastAPI()
 
 
-class CustomFormatter(logging.Formatter):
-    # Define color codes
-    RESET = "\033[0m"
-    COLORS = {
-        "DEBUG": "\033[94m",    # Blue
-        "INFO": "\033[92m",     # Green
-        "WARNING": "\033[93m",  # Yellow
-        "ERROR": "\033[91m",    # Red
-        "CRITICAL": "\033[95m",  # Magenta
-    }
-
-    def format(self, record):
-        log_color = self.COLORS.get(record.levelname, self.RESET)
-        message = super().format(record)
-        return f"{log_color}{message}{self.RESET}"
-
-
-# Configure logging with the custom formatter
-handler = logging.StreamHandler()  # Output to console
+handler = logging.StreamHandler()
 formatter = CustomFormatter("%(asctime)s - %(levelname)s - %(message)s")
 handler.setFormatter(formatter)
 
+
 logging.basicConfig(level=logging.DEBUG, handlers=[handler])
+
+
 SYSTEM_MESSAGE = generate_system_message_with_metadata()
+spark = get_spark_session()
 
 
 @app.get("/herd-access")
@@ -121,7 +107,7 @@ def ask_the_bot_handler(input: InputModel):
         ai_in_delta_tables = Delta_Table_Handler(
             catalog_name="main",
             client=mlflow.deployments.get_deploy_client("databricks"),
-            spark=get_spark_session(),
+            spark=spark,
             system_messages=message
         )
 
