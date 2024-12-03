@@ -1,3 +1,4 @@
+import logging
 from typing import List
 from pydantic import BaseModel
 
@@ -15,8 +16,9 @@ class DataModel(BaseModel):
 
 
 class InputModel(BaseModel):
-    input: str
-    herds: list
+    question: str
+    herds: List[int]
+
 
 class HerdAccess(BaseModel):
     HerdId: int
@@ -24,3 +26,20 @@ class HerdAccess(BaseModel):
 
 class UserHerdAccessResponse(BaseModel):
     HerdIds: List[int]
+
+
+class CustomFormatter(logging.Formatter):
+    # Define color codes
+    RESET = "\033[0m"
+    COLORS = {
+        "DEBUG": "\033[94m",    # Blue
+        "INFO": "\033[92m",     # Green
+        "WARNING": "\033[93m",  # Yellow
+        "ERROR": "\033[91m",    # Red
+        "CRITICAL": "\033[95m",  # Magenta
+    }
+
+    def format(self, record):
+        log_color = self.COLORS.get(record.levelname, self.RESET)
+        message = super().format(record)
+        return f"{log_color}{message}{self.RESET}"

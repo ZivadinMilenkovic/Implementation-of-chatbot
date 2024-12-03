@@ -3,3 +3,4 @@
 __pycache__/
 .vscode/
 .databricks/
+.source_table_csv/
