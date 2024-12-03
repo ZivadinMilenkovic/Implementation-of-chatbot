@@ -37,13 +37,13 @@ class Delta_Table_Handler:
         try:
             logging.info("Generating SQL query from system messages.")
             initial_response = get_the_client(
-                self.client, self.system_messages, max_tokens=200, temperature=0.1
+                self.client, self.system_messages, max_tokens=500, temperature=0.1
             )
             generated_sql = initial_response.choices[0]['message']['content']
             logging.info(f"Generated SQL: {generated_sql}")
         except Exception as e:
             logging.error(f"Failed to generate SQL query: {e}")
-            return f"Error in generating SQL query: {e}"
+            raise Exception(f"Error in generating SQL query: {e}")
 
         try:
             logging.info("Executing SQL query using Spark.")
@@ -61,7 +61,7 @@ class Delta_Table_Handler:
                 "SQL query executed successfully and results collected.")
         except Exception as e:
             logging.error(f"Failed to execute SQL query with Spark: {e}")
-            return f"Error in executing SQL query: {e}"
+            raise Exception(f"Error in executing SQL query: {e}")
 
         try:
             logging.info("Generating response template for SQL results.")
@@ -69,7 +69,7 @@ class Delta_Table_Handler:
                 df_to_list, question)
         except Exception as e:
             logging.error(f"Failed to generate response template: {e}")
-            return f"Error in generating response template: {e}"
+            raise Exception(f"Error in executing SQL query: {e}")
 
         follow_up_messages = [
             {"role": "system", "content": response_template},
@@ -79,12 +79,12 @@ class Delta_Table_Handler:
         try:
             logging.info("Getting final interpretation of the SQL results.")
             final_response = get_the_client(
-                self.client, follow_up_messages, max_tokens=200, temperature=0.5
+                self.client, follow_up_messages, max_tokens=500, temperature=0.5
             )
             final_result = final_response.choices[0]['message']['content']
             logging.info("Final interpretation received successfully.")
         except Exception as e:
             logging.error(f"Failed to get the final interpretation: {e}")
-            return f"Error in interpreting results: {e}"
+            raise Exception(f"Error in executing SQL query: {e}")
 
         return final_result

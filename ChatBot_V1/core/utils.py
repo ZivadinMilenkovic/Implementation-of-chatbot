@@ -67,6 +67,8 @@ def create_sql_template(table_metadata, column_metadata):
     ORDER BY TotalMilkYield DESC
     LIMIT 1
 
+    
+    
     """
     logging.info("SQL template and example response created successfully.")
     return SQL_TEMPLATE, EXAMPLE_RESPONSE
